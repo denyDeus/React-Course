@@ -11,90 +11,100 @@
     <script src="https://unpkg.com/supersimpledev/react.js"></script>
     <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
 
+    <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
+
     <script src="https://unpkg.com/supersimpledev/babel.js"></script>
     <script type="text/babel">
       
-      function ChatInput() {
+      function ChatInput({ value, onChange, onSend }) {
         return(
             <>
                 <input 
+                  type="text"
                   placeholder="Send a message to Chatbot" 
                   size="25" 
+                  value={value}
+                  onChange={(event) => onChange(event.target.value)}
                 />
-                <button>Send</button>
+                <button type="button" onClick={onSend}>Send</button>
             </>
         );
       }
 
       function ChatMessage({ message, sender }) {
-
-        /*
-        if (sender === 'robot') {
-          return(
-            <div>
-                <img src="robot.png" width="50" />
-                {message}
-            </div> 
-          );
-        }
-          */
-
         return(
             <div>
-              
               {sender === 'robot' && (
-                <img src="robot.png" width="50" />
-              )}  
+                <img src="robot.png" width="50" alt="robot" />
+              )}
               {message}
               {sender === 'user' && (
-                <img src="user.png" width="50" />
-              )}  
+                <img src="user.png" width="50" alt="user" />
+              )}
             </div>
         );
       }
 
+      function ChatMessages({ messages }) {
+        return(
+          <>
+            {messages.map((chatMessage) => {
+              return(
+                <ChatMessage
+                  message={chatMessage.message}
+                  sender={chatMessage.sender}
+                  key={chatMessage.id}
+                />
+              );
+            })}
+          </>
+        )
+      }
+
       function App() {
-        const ChatMessage = [{
+        const [messages, setMessages] = React.useState([{
           message: 'hello chatbot',
-          sender: 'user'
+          sender: 'user',
+          id: 'id1'
         }, {
           message: 'Hello! How can I help you?',
-          sender: 'robot'
+          sender: 'robot',
+          id: 'id2'
         }, {
           message: "can you get me today's date?",
-          sender: 'user'
+          sender: 'user',
+          id: 'id3'
         }, {
           message: "Today is June 23",
-          sender: 'robot'
-        }];
-        
-        const chatMessageComponents = chatMessages.map((chatMessage) => {
-          return(
-            <ChatMessage
-              message={chatMessage.message}
-              sender={chatMessage.sender}
-            />
-          );
-        });
+          sender: 'robot',
+          id: 'id4'
+        }]);
+
+        const [inputValue, setInputValue] = React.useState('');
+
+        function sendMessage() {
+          const trimmed = inputValue.trim();
+          if (!trimmed) return;
+
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              message: trimmed,
+              sender: 'user',
+              id: `id${prevMessages.length + 1}`
+            }
+          ]);
+
+          setInputValue('');
+        }
 
         return(
           <>
-            <ChatInput />
-            <ChatMessage 
-              message="hello chatbot" 
-              sender="user" 
-            />
-            <ChatMessage 
-              message="Hello! How can I help you?" 
-              sender="robot" 
-            />
-            <ChatMessage 
-              message="can you get me today's date?" 
-              sender="user" 
-            />
-            <ChatMessage 
-              message="Today is June 23" 
-              sender="robot" 
+            <ChatMessages messages={messages} />
+            <ChatInput
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={sendMessage}
             />
         </>
         );
