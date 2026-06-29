@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
+    <style>
+      .send-btn {
+        background-color: green;
+        color: white;
+      }
+    </style>
   </head>
   <body>
     <div class="js-container"></div>
@@ -26,7 +32,7 @@
                   value={value}
                   onChange={(event) => onChange(event.target.value)}
                 />
-                <button type="button" onClick={onSend}>Send</button>
+                <button type="button" onClick={onSend} className="send-btn">Send</button>
             </>
         );
       }
@@ -82,18 +88,49 @@
 
         const [inputValue, setInputValue] = React.useState('');
 
+        function getRobotReply(userMessage) {
+          const message = userMessage.toLowerCase();
+
+          if (message.includes('hello') || message.includes('hi')) {
+            return 'Hello! How can I help you?';
+          }
+
+          if (message.includes('date')) {
+            return 'Today is June 29.';
+          }
+
+          if (message.includes('name')) {
+            return 'I am your chatbot.';
+          }
+          if (message.includes('coin')) {
+            return 'Yes, you got a tails.';
+          }
+
+          return 'I am not sure how to answer that yet.';
+        }
+
         function sendMessage() {
           const trimmed = inputValue.trim();
           if (!trimmed) return;
 
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            {
-              message: trimmed,
-              sender: 'user',
-              id: `id${prevMessages.length + 1}`
-            }
-          ]);
+          setMessages((prevMessages) => {
+            const updatedMessages = [
+              ...prevMessages,
+              {
+                message: trimmed,
+                sender: 'user',
+                id: `id${prevMessages.length + 1}`
+              }
+            ];
+
+            updatedMessages.push({
+              message: getRobotReply(trimmed),
+              sender: 'robot',
+              id: `id${updatedMessages.length + 1}`
+            });
+
+            return updatedMessages;
+          });
 
           setInputValue('');
         }
